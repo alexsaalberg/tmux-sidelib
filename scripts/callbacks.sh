@@ -33,7 +33,7 @@ on_mainpane_gone() {
 	local mainpane=$2
 	local sidepane=$3
 
-	close_pane $sidepane
+	#close_pane $sidepane
 	undesignate_panes $app_prefix $mainpane $sidepane
 }
 # returns nothing

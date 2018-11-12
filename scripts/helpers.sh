@@ -21,7 +21,7 @@ set_tmux_option() {
 unset_tmux_option() {
 	local option=$1
 
-	tmux set-option -uq "$option" 
+	tmux set-option -u -q "$option" 
 }
 
 set_sideapp_option() {
@@ -102,12 +102,15 @@ close_pane() {
 
 pane_exists() {
 	local pane_id=$1
-	local result=$(tmux display-message -t $pane_id -p "#{pane_id}")
-
-	if [ $result == pane_id ]; then
-		return 1
+	local result=$(tmux display-message -p -t $pane_id "#{pane_id}" 2>&1)
+	
+	#echo "pane_exists(): pane_id=$pane_id result=$result"
+	if [ "$result" == "$pane_id" ]; then
+		#echo "pane does exist"
+		return 0 # TRUE
 	else
-		return 0
+		#echo "pane does NOT exist"
+		return 1 # FALSE
 	fi
 }
 

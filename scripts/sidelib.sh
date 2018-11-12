@@ -27,11 +27,14 @@ toggle_sidepane() {
 		on_new_sideapp $app_prefix $mainpane
 	else #  designations already exist,
 	     #+ (there was a sidepane at some point)
-		if pane_exists $mainpane; then
+		if ! pane_exists $mainpane; then
+			#echo "mainpane gone"
 			on_mainpane_gone $app_prefix $mainpane $sidepane
-		elif pane_exists $sidepane; then
+		elif ! pane_exists $sidepane; then
+			#echo "sidepane gone"
 			on_sidepane_gone $app_prefix $mainpane $sidepane
 		else
+			#echo "repress"
 			on_repress $APP_PREFIX $mainpane $sidepane
 		fi
 	fi
