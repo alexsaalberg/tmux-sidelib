@@ -21,7 +21,6 @@ set_tmux_option() {
 unset_tmux_option() {
 	local option=$1
 
-	echo "unset $option"
 	tmux set-option -uq "$option" 
 }
 
