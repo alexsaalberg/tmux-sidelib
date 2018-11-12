@@ -1,10 +1,15 @@
-source callbacks.sh # this file sources helpers.sh
+#!/bin/bash
+
+source sideapp.sh # this file sources helpers.sh and callbacks.sh
+
+GLOBAL_PREFIX="side"
 
 main() {
-	local thispane=$1	
+	local thispane=$(get_active_pane)
 	local mainpane=$(get_mainpane $APP_PREFIX $thispane)
-	if [[ mainpane != ""]]; then
-		thispane=mainpane
+	#echo "main thispane=$thispane mainpane=$mainpane"
+	if [ $mainpane != "none" ]; then # if thispane is a sidepane, toggle its mainpane
+		thispane=$mainpane
 	fi
 	
 	toggle_sidepane $thispane
@@ -13,25 +18,23 @@ main() {
 toggle_sidepane() {
 	local mainpane=$1
 	
-	local sidepane=$(get_sidepane $APP_PREFIX $mainpane)
-	if [[ sidepane != "" ]]; then
-		new_sideapp $mainpane
-	else
-		on_repress $mainpane $sidepane
+	local app_prefix=$APP_PREFIX
+	local sidepane=$(get_sidepane $app_prefix $mainpane)
+
+	#echo "t mainpane=$mainpane sidepane=$sidepane prefix=$APP_PREFIX"
+	if [ $sidepane == "none" ]; then
+		#echo "new sideapp"
+		on_new_sideapp $app_prefix $mainpane
+	else #  designations already exist,
+	     #+ (there was a sidepane at some point)
+		if pane_exists $mainpane; then
+			on_mainpane_gone $app_prefix $mainpane $sidepane
+		elif pane_exists $sidepane; then
+			on_sidepane_gone $app_prefix $mainpane $sidepane
+		else
+			on_repress $APP_PREFIX $mainpane $sidepane
+		fi
 	fi
 }
-
-new_sideapp() {
-	local mainpane=$1
-
-	local sidepane=$(tmux split-window -t $mainpane)
-	designate_panes $APP_PREFIX $mainpane $sidepane
-
-	on_new_sideapp $mainpane $sidepane
-}
-
-
-
-
 
 main
