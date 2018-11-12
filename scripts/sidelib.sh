@@ -1,5 +1,7 @@
 #!/bin/bash
 
+TIMEOUT_LENGTH="0"
+
 source sideapp.sh # this file sources helpers.sh and callbacks.sh
 
 GLOBAL_PREFIX="side"
@@ -21,10 +23,12 @@ toggle_sidepane() {
 	local app_prefix=$APP_PREFIX
 	local sidepane=$(get_sidepane $app_prefix $mainpane)
 
-	#echo "t mainpane=$mainpane sidepane=$sidepane prefix=$APP_PREFIX"
 	if [ $sidepane == "none" ]; then
-		#echo "new sideapp"
+		if [ $TIMEOUT_LENGTH != "0" ]; then
+			setup_timeout
+		fi
 		on_new_sideapp $app_prefix $mainpane
+
 	else #  designations already exist,
 	     #+ (there was a sidepane at some point)
 		if ! pane_exists $mainpane; then
@@ -38,6 +42,13 @@ toggle_sidepane() {
 			on_repress $APP_PREFIX $mainpane $sidepane
 		fi
 	fi
+}
+
+setup_timeout() {
+	tmux set-window-option monitor-silence $TIMEOUT_LENGTH	
+	tmux set-option silence-action any
+	current_session=$(tmux display-message -p "#{session_id}")
+	tmux set-hook -t $current_session 'alert-silence' "run -b \"$CURRENT_DIR/timeout.sh\""
 }
 
 main

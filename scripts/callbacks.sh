@@ -5,9 +5,10 @@ on_new_sideapp() {
 	local app_prefix=$1
 	local mainpane=$2
 
-	local sidepane=$(tmux split-window -t $mainpane)
+	local sidepane=$(tmux split-window -h -t $mainpane -P -F "#{pane_id}")
 
 	designate_panes $app_prefix $mainpane $sidepane
+	tmux last-pane
 }
 
 on_repress() {
@@ -33,7 +34,6 @@ on_mainpane_gone() {
 	local mainpane=$2
 	local sidepane=$3
 
-	#close_pane $sidepane
 	undesignate_panes $app_prefix $mainpane $sidepane
 }
 # returns nothing
