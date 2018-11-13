@@ -113,7 +113,10 @@ unset_timeout() {
 	debug_echo "unset_after: $script_list"
 
 	set_tmux_option $TIMEOUT_CMDS_OPTION "$script_list"
-	tmux set-window-option monitor-silence 0
+	
+	if [ $script_list=="" ]; then
+		tmux set-window-option monitor-silence 0
+	fi
 }
 
 get_mainpane() { 
@@ -175,17 +178,17 @@ get_leaf_pid() (
 	local pid=$1
 	
 	local child_pid=$(pgrep -P $pid)
-	if [ -z child_pid ]; then
+	if [ -z $child_pid ]; then
 		echo $pid
 	else
-		echo $(get_leaf_pid $pid)
+		echo $(get_leaf_pid $child_pid)
 	fi
 )
 
 get_clean_program() (
 	local program=$1
 
-	if [ program == "-bash" ]; then
+	if [ $program == "-bash" ]; then
 		echo "bash"
 	else
 		echo $program
@@ -197,13 +200,14 @@ get_program_of_pid() (
 
 	local program=$(ps -p $pid -o "comm=")
 	local clean_program=$(get_clean_program $program)
-	echo $program
+	echo "$clean_program"
 )
 
 get_program_of_pane() (
 	local pane=$1
 
-	local pid=get_pid pane
+	local pid=$(get_pid pane)
+	pid=$(get_leaf_pid $pid)
 	local program=$(get_program_of_pid $pid)
 	echo $program
 )
