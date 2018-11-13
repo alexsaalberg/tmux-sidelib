@@ -1,9 +1,9 @@
 source sideapp.sh
 
 main() {
-	local mainpane=$1
-	local sidepane=$2
-	local app_prefix=$APP_PREFIX
+	local app_prefix=$1
+	local mainpane=$2
+	local sidepane=$3
 
 	if ! pane_exists $mainpane; then	
 		on_timeout_mainpane_gone $app_prefix $mainpane $sidepane
@@ -14,4 +14,4 @@ main() {
 	fi
 }
 
-main $1 $2 # a timeout has just occured
+main $1 $2 $3 # a timeout has just occured

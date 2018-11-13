@@ -1,3 +1,9 @@
+debug_echo() {
+	local str=$1
+
+	#echo "DEBUG: $str"
+}
+
 ### tmux option setting ###
 
 get_tmux_option() ( 
@@ -72,6 +78,44 @@ undesignate_panes() {
 	unset_sideapp_option $app_prefix "${sidepane}helps"
 }
 
+set_timeout() {
+	local app_prefix=$1
+	local mainpane=$2
+	local sidepane=$3
+
+	local session=$(get_current_session)
+
+	tmux set-window-option monitor-silence $TIMEOUT_LENGTH
+	tmux set-option silence-action any
+	tmux set-hook -t $session 'alert-silence' "run -b \"$CURRENT_DIR/timeout_plexer.sh\""
+
+	local timeout_script="$CURRENT_DIR/timeout.sh"
+	local timeout_cmd="$timeout_script $app_prefix $mainpane $sidepane"
+	debug_echo "set_timeout: $timeout_cmd"
+	tmux set-option -a $TIMEOUT_CMDS_OPTION ";$timeout_cmd"
+}
+
+unset_timeout() {
+	local app_prefix=$1
+	local mainpane=$2
+	local sidepane=$3
+
+	local timeout_script="$CURRENT_DIR/timeout.sh"
+	local timeout_cmd="$timeout_script $app_prefix $mainpane $sidepane"
+
+	local script_list=$(get_tmux_option $TIMEOUT_CMDS_OPTION "")
+
+	debug_echo "removing: $timeout_cmd"
+
+	debug_echo "unset_before: $script_list"
+	# removes the substring ";$timeout_cmd" from script_list
+	script_list=${script_list/;$timeout_cmd/}
+	debug_echo "unset_after: $script_list"
+
+	set_tmux_option $TIMEOUT_CMDS_OPTION "$script_list"
+	tmux set-window-option monitor-silence 0
+}
+
 get_mainpane() { 
 	local app_prefix=$1
 	local sidepane=$2
@@ -92,6 +136,11 @@ get_active_pane() (
 	local pane=$(tmux display-message -p "#{pane_id}")
 	echo $pane
 )
+
+get_current_session() {
+	local session=$(tmux display-message -p "#{session_id}")
+	echo $session
+}
 
 close_pane() {
 	pane_id=$1

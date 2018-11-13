@@ -16,6 +16,7 @@ on_repress() {
 	local mainpane=$2
 	local sidepane=$3
 
+	unset_timeout $app_prefix $mainpane $sidepane
 	close_pane $sidepane
 	undesignate_panes $app_prefix $mainpane $sidepane
 }
@@ -25,6 +26,7 @@ on_sidepane_gone() {
 	local mainpane=$2
 	local sidepane=$3
 
+	unset_timeout $app_prefix $mainpane $sidepane
 	undesignate_panes $app_prefix $mainpane $sidepane
 }
 # returns nothing
@@ -34,6 +36,7 @@ on_mainpane_gone() {
 	local mainpane=$2
 	local sidepane=$3
 
+	unset_timeout $app_prefix $mainpane $sidepane
 	undesignate_panes $app_prefix $mainpane $sidepane
 }
 # returns nothing
