@@ -1,4 +1,5 @@
 source sideapp.sh
+source variables.sh
 
 main() {
 	local app_prefix=$1
