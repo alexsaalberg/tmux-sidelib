@@ -114,7 +114,7 @@ unset_timeout() {
 
 	set_tmux_option $TIMEOUT_CMDS_OPTION "$script_list"
 	
-	if [ $script_list=="" ]; then
+	if [ "$script_list"=="" ]; then
 		tmux set-window-option monitor-silence 0
 	fi
 }
