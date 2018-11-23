@@ -1,9 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 TIMEOUT_LENGTH="0"
 
 source sideapp.sh # this file sources helpers.sh and callbacks.sh
-
 source variables.sh
 
 main() {
@@ -40,6 +39,5 @@ toggle_sidepane() {
 		fi
 	fi
 }
-
 
 main
