@@ -1,6 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -i
 
 TIMEOUT_LENGTH="0"
+PROMPT_VAR="$PS1"
+PROMPT_VAR="${PROMPT_VAR@P}"
 
 source sideapp.sh # this file sources helpers.sh and callbacks.sh
 source variables.sh
