@@ -54,7 +54,6 @@ on_new_sideapp() {
 	local program=$(get_program_of_pane $mainpane)
 	set_sideapp_option $app_prefix "$mainpane-program" "$program"
 
-	#echo "program: $program"
 	local sidepane=$(tmux split-window -h -t $mainpane -P -F "#{pane_id}")
 
 	open_note_in_pane $app_prefix $sidepane $program
@@ -74,11 +73,6 @@ on_timeout() {
 
 	local program=$(get_program_of_pane $mainpane)
 	local old_program=$(get_sideapp_option $app_prefix "$mainpane-program" "")
-
-	#tmux send-keys -t $sidepane "pid=$pid leaf_pid=$leaf_pid"
-	#tmux send-keys -t $sidepane Enter
-	#tmux send-keys -t $sidepane "NEW=$program OLD=$old_program"
-	#tmux send-keys -t $sidepane Enter
 
 	if [ "$program" != "$old_program" ]; then
 		close_note_in_pane $app_prefix $sidepane $old_program
