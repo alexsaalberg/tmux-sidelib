@@ -68,8 +68,8 @@ on_timeout() {
 	local mainpane=$2
 	local sidepane=$3
 
-	local pid=$(get_pid $mainpane)
-	local leaf_pid=$(get_leaf_pid $pid)
+	#local pid=$(get_pid $mainpane)
+	#local leaf_pid=$(get_leaf_pid $pid)
 
 	local program=$(get_program_of_pane $mainpane)
 	local old_program=$(get_sideapp_option $app_prefix "$mainpane-program" "")
