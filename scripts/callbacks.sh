@@ -63,3 +63,19 @@ on_timeout_mainpane_gone() {
 
 	on_mainpane_gone $app_prefix $mainpane $sidepane
 }
+
+### state changes ###
+has_state_changed() {
+	local app_prefix=$1
+	local mainpane=$2
+	local sidepane=$3
+
+	# by default, say state has NOT changed
+	return 1 # FALSE
+}
+
+on_state_changed() {
+	local app_prefix=$1
+	local mainpane=$2
+	local sidepane=$3
+}
