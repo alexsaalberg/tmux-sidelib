@@ -1,7 +1,22 @@
 debug_echo() {
-	local str=$1
+	local str="$1"
 
 	#echo "DEBUG: $str"
+	debug_to_file "$str"
+}
+
+debug_to_file() {
+	local str="$1"
+
+	local date_str=$(date)
+
+	echo "${date_str}: $str" >> debug_out
+}
+
+debug_state_print() {
+	local str="$1"
+
+	debug_to_file "$str"
 }
 
 ### tmux option setting ###
@@ -19,7 +34,7 @@ get_tmux_option() (
 
 set_tmux_option() {
 	local option=$1
-	local value=$2
+	local value="$2"
 
 	tmux set-option -q "$option" "$value"
 }
@@ -33,11 +48,11 @@ unset_tmux_option() {
 set_sideapp_option() {
 	local app_prefix=$1
 	local option=$2
-	local value=$3
+	local value="$3"
 
 	local prefixed_option="@$GLOBAL_PREFIX-$app_prefix-$option"
 
-	set_tmux_option $prefixed_option $value
+	set_tmux_option $prefixed_option "$value"
 }
 
 unset_sideapp_option() {
@@ -87,12 +102,18 @@ set_timeout() {
 
 	tmux set-window-option monitor-silence $TIMEOUT_LENGTH
 	tmux set-option silence-action any
-	tmux set-hook -t $session 'alert-silence' "run -b \"$CURRENT_DIR/timeout_plexer.sh\""
+	local hook_command="run -b \"$CURRENT_DIR/timeout_plexer.sh\""
 
+	#tmux set-hook -t $session 'alert-silence' "run -b \"$CURRENT_DIR/timeout_plexer.sh\""
+	tmux set-hook -t $session 'alert-silence' "$hook_command"
 	local timeout_script="$CURRENT_DIR/timeout.sh"
 	local timeout_cmd="$timeout_script $app_prefix $mainpane $sidepane"
-	debug_echo "set_timeout: $timeout_cmd"
+
 	tmux set-option -a $TIMEOUT_CMDS_OPTION ";$timeout_cmd"
+
+	debug_echo "set_timeout: $TIMEOUT_LENGTH"
+	debug_echo "set_timeout_cmd: $timeout_cmd"
+	debug_echo "set_hook: $hook_command"
 }
 
 unset_timeout() {
@@ -168,9 +189,9 @@ pane_exists() {
 
 ### other helpers
 get_pid() (
-	local pane=$1
+	local pane="$1"
 	
-	local pid=$(tmux display-message -p "#{pane_pid}")
+	local pid=$(tmux display-message -t $pane -p "#{pane_pid}")
 	echo $pid
 )
 
@@ -206,8 +227,10 @@ get_program_of_pid() (
 get_program_of_pane() (
 	local pane=$1
 
-	local pid=$(get_pid pane)
+	local pid=$(get_pid $pane)
+	debug_to_file "get_program_of_pane: pid=$pid"
 	pid=$(get_leaf_pid $pid)
+	debug_to_file "get_program_of_pane: leaf_pid=$pid"
 	local program=$(get_program_of_pid $pid)
 	echo $program
 )
