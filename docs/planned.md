@@ -28,5 +28,8 @@
         - If either pane is closed, call the appropriate normal callbacks.
         - This way `on_second()` can call `on_timeout()` or `on_repress()` on it's own.
 - Add tmux_shell_line.sh stuff to helpers.sh
+
+## vWhenever
 - (Maybe) Make demos not open up bash
   - They can open up the program directly, might be better?
+- A tutorial for creating sideapps
