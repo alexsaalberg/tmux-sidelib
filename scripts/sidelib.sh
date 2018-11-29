@@ -25,19 +25,27 @@ toggle_sidepane() {
 	local sidepane=$(get_sidepane $app_prefix $mainpane)
 
 	if [ $sidepane == "none" ]; then
+		debug_echo "sidelib: on_new_sideapp()"
 		on_new_sideapp $app_prefix $mainpane
 
 	else #  designations already exist,
 	     #+ (there was a sidepane at some point)
 		if ! pane_exists $mainpane; then
 			#echo "mainpane gone"
+			debug_echo "sidelib: on_mainpane_gone()"
 			on_mainpane_gone $app_prefix $mainpane $sidepane
 		elif ! pane_exists $sidepane; then
 			#echo "sidepane gone"
+			debug_echo "sidelib: on_sidepane_gone()"
 			on_sidepane_gone $app_prefix $mainpane $sidepane
 		else
-			#echo "repress"
-			on_repress $APP_PREFIX $mainpane $sidepane
+			if has_state_changed $app_prefix $mainpane $sidepane; then
+				debug_echo "sidelib: on_state_changed()"
+				on_state_changed $app_prefix $mainpane $sidepane
+			else
+				debug_echo "sidelib: on_repress()"
+				on_repress $app_prefix $mainpane $sidepane
+			fi
 		fi
 	fi
 }
