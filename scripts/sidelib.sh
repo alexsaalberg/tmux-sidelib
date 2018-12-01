@@ -3,9 +3,10 @@
 TIMEOUT_LENGTH="0"
 PROMPT_VAR="$PS1"
 PROMPT_VAR="${PROMPT_VAR@P}"
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-source sideapp.sh # this file sources helpers.sh and callbacks.sh
-source variables.sh
+source $CURRENT_DIR/sideapp.sh # this file sources helpers.sh and callbacks.sh
+source $CURRENT_DIR/variables.sh
 
 main() {
 	local thispane=$(get_active_pane)

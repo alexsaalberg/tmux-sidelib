@@ -16,5 +16,6 @@ main() {
 	done
 }
 
+debug_echo "entering timeout plexer..."
 main
 exit 0

@@ -10,7 +10,7 @@ debug_to_file() {
 
 	local date_str=$(date)
 
-	echo "${date_str}: $str" >> debug_out
+	echo "${date_str}: $str" >> $CURRENT_DIR/debug_out
 }
 
 debug_state_print() {
@@ -166,12 +166,17 @@ get_current_session() {
 	echo $session
 }
 
+get_pane_dir() {
+	local pane="$1"
+	local pane_dir=$(tmux display-message -p -t $pane '#{pane_current_path}')
+	echo "$pane_dir"
+}
+
 close_pane() {
 	pane_id=$1
 
 	tmux kill-pane -t "$pane_id"
 }
-
 
 pane_exists() {
 	local pane_id=$1
@@ -234,3 +239,52 @@ get_program_of_pane() (
 	local program=$(get_program_of_pid $pid)
 	echo $program
 )
+
+### shell_line
+get_tmux_shell_line() {
+	local mainpane=$1
+
+	local pane_contents=$(tmux capture-pane -p -t "$mainpane")
+
+	local prompt_var=$(tmux show-environment -g PS1)
+	prompt_var=${prompt_var#PS1=}
+	debug_to_file "  shell_line prompt_var: $prompt_var" 
+
+	# we expand /w and /W manually because they will otherwise not be expanded to the correct dirs
+	prompt_var=$(expand_shell_line_dirs $mainpane "$prompt_var")
+
+	# Expand the prompt_var (e.g. '\w \u$ ') to the actual prompt (e.g. '/Users/John/Desktop JohnPerson$ ')
+	local prompt="${prompt_var@P}"
+	debug_to_file "  shell_line prompt: $prompt" 
+
+	# Get the most recent line that contains the users expanded shell prompt
+	local prompt_and_contents=$(echo "$pane_contents" | grep "$prompt" | tail -n 1)
+
+	# Remove the prompt so it's just the shell_line (everything after the $ typically) (e.g. 'ls -l')
+	local shell_line="${prompt_and_contents#$prompt}" 
+	debug_to_file "  shell_line line: $shell_line" 
+
+	echo "$shell_line"
+}
+
+get_base_dir() {
+	local full_dir="$1"
+	local base_dir=$(basename "$full_dir")
+	echo "$base_dir"
+}
+
+expand_shell_line_dirs() {
+	local mainpane=$1
+	local prompt_var="$2"
+
+	local mainpane_pwd=$(get_pane_dir $mainpane)
+	local mainpane_base_dir=$(get_base_dir "$mainpane_pwd")
+
+	# replace all /w with full working dir
+	prompt_var=${prompt_var//\\w/$mainpane_pwd}
+
+	# replace all /W with base dir
+	prompt_var=${prompt_var//\\W/$mainpane_base_dir}
+
+	echo "$prompt_var"
+}

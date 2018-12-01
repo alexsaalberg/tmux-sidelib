@@ -1,4 +1,4 @@
-source helpers.sh
+source $CURRENT_DIR/helpers.sh
 
 ### normal ###
 on_new_sideapp() {

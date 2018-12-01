@@ -2,8 +2,8 @@
 
 # SIDE_MAN
 
-source callbacks.sh
-source tmux_shell_line.sh
+source $CURRENT_DIR/callbacks.sh
+#source $CURRENT_DIR/tmux_shell_line.sh
 
 TIMEOUT_LENGTH="5"
 APP_PREFIX="man"
