@@ -1,8 +1,6 @@
 #!/usr/bin/env bash -i
 
 TIMEOUT_LENGTH="0"
-PROMPT_VAR="$PS1"
-PROMPT_VAR="${PROMPT_VAR@P}"
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source $CURRENT_DIR/sideapp.sh # this file sources helpers.sh and callbacks.sh
@@ -41,10 +39,10 @@ toggle_sidepane() {
 			on_sidepane_gone $app_prefix $mainpane $sidepane
 		else
 			if has_state_changed $app_prefix $mainpane $sidepane; then
-				debug_echo "sidelib: on_state_changed()"
+				debug_echo "sidelib(state changed): on_state_changed()"
 				on_state_changed $app_prefix $mainpane $sidepane
 			else
-				debug_echo "sidelib: on_repress()"
+				debug_echo "sidelib(state same): on_repress()"
 				on_repress $app_prefix $mainpane $sidepane
 			fi
 		fi
