@@ -246,7 +246,7 @@ get_tmux_shell_line() {
 
 	local pane_contents=$(tmux capture-pane -p -t "$mainpane")
 	#pane_contents="$pane_contents "
-	echo "_*_${pane_contents}_*_" > pane_contents
+	#echo "_*_${pane_contents}_*_" > pane_contents
 
 
 	local prompt_var=$(tmux show-environment -g PS1)
