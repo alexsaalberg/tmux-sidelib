@@ -4,6 +4,8 @@ source $CURRENT_DIR/callbacks.sh
 TIMEOUT_LENGTH="0"
 APP_PREFIX="note"
 
+OPTION_PROGRAM="program"
+
 close_note_in_pane() {
 	local app_prefix=$1
 	local pane=$2
@@ -53,7 +55,7 @@ on_new_sideapp() {
 
 	# figure out which program $mainpane has, so a note can be opened of it
 	local program=$(get_program_of_pane $mainpane)
-	set_sideapp_option $app_prefix "$mainpane-program" "$program"
+	set_sideapp_option $app_prefix "OPTION_PROGRAM" "$program"
 
 	local sidepane=$(tmux split-window -h -t $mainpane -P -F "#{pane_id}")
 
@@ -82,5 +84,51 @@ on_timeout() {
 		set_sideapp_option $app_prefix "$mainpane-program" "$program"
 	else
 		save_note_in_pane $app_prefix $sidepane
+	fi
+}
+
+on_repress() {
+	local app_prefix=$1
+	local mainpane=$2
+	local sidepane=$3
+
+	save_note_in_pane $app_prefix $sidepane
+	close_pane $sidepane
+	undesignate_panes $app_prefix $mainpane $sidepane
+}
+
+on_state_changed() {
+	local app_prefix=$1
+	local mainpane=$2
+	local sidepane=$3
+
+	local program=$(get_sideapp_option $app_prefix "$OPTION_PROGRAM" "none")
+
+	save_note_in_pane $app_prefix $sidepane
+	close_note_in_pane $app_prefix $sidepane
+	open_note_in_pane $app_prefix $sidepane "$program"
+
+}
+
+has_state_changed() {
+	local app_prefix=$1
+	local mainpane=$2
+	local sidepane=$3
+
+	local program=$(get_program_of_pane $mainpane)
+	local old_program=$(get_sideapp_option $app_prefix "$OPTION_PROGRAM" "none")
+
+	set_sideapp_option $app_prefix "$OPTION_PROGRAM" "$program"
+
+	debug_to_file "has_state_changed: program: '$program'"
+	debug_to_file "has_state_changed: old_program: '$old_program'"
+
+	if [ "$program" == "$old_program" ]; then
+		# state has NOT changed
+		debug_to_file "no state change"
+		return 1 # FALSE
+	else
+		# state HAS changed
+		return 0 # TRUE
 	fi
 }
