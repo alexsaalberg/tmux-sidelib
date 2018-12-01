@@ -5,6 +5,12 @@ This document is a walkthrough on how to make your own sideapp using tmux-sideli
 
 Check out the [/demos](/demos) folder for some examples.
 
+## Table Of Contents
+
+- [How tmux-sidelib works](#how-tmux-sidelib-works)
+
+- [How to write a sideapp](#how-to-write-a-sideapp)
+
 ## How tmux-sidelib works
 
 Here's some examples of how sidelib works.
@@ -15,7 +21,7 @@ Most later examples continue from the state of the sideapp at the end of the fir
 
 1. prefix is activated on pane `%0` (the pane with id 0).
 
-2. Because pane `%0` is not registered as being a sidepane or a mainpane, sidelib actiavtes teh callback `on_new_sideapp()` 
+2. Because pane `%0` is not registered as being a sidepane or a mainpane, sidelib activates teh callback `on_new_sideapp()` 
 
 3. `on_new_sideapp()` splits pane `%0` and creates pane `%1`
 
@@ -74,11 +80,15 @@ From this situation a few things could happen, let's go over them.
 
 ## How to write a sideapp
 
+First, open a new file, called `sideapp.sh`, in [/scripts](/scripts).
+
+Alternatively, copy [/demos/default/sideapp.sh](/demos/default/sideapp.sh) into [/scripts](/scripts). This file provides a nice starting point for a sideapp.
+
 ### 1. Necessary boilerplate
 
 There's a couple thing that every sideapp needs to do to get sidelib to work properly.
 
-1. **Add this line near the top of the file.**
+1. **Add this line near the top of the `sideapp.sh`.**
 
        source $CURRENT_DIR/callbacks.sh
    
@@ -94,16 +104,30 @@ There's a couple thing that every sideapp needs to do to get sidelib to work pro
    
 That's all that's necessary, But if you don't override any callback functions your app won't do anything.
    
-### on_new_sideapp
+### 2. on_new_sideapp()
 
+This callback is activated when your sideapp first starts.
 
+At a bare minimum, it should split the mainpane and designate a sidepane.
 
-### Split the mainpane
+This can be done using `tmux split-window` and the `helpers.sh` function `designate_panes()`
 
-The most complex task that the sideapp is in charge of is creating the sidepane.
-
-Here's an example. See the [tmux man page](https://man.openbsd.org/OpenBSD-current/man1/tmux.1#split-window) for more info.
+Here's an example. See the [tmux man page](https://man.openbsd.org/OpenBSD-current/man1/tmux.1#split-window) for more info about split-window.
 
     local sidepane=$(tmux split-window -h -t $mainpane -P -F "#{pane_id}")
+    designate_panes $mainpane $sidepane
   
 The `-P -F "#{pane_id}"` is crucial. It outputs the new pane's id into stdout, which is then stored in `sidepane`.
+
+Once the sidepane is created you'll want to do something with the sidepane. 
+
+For example, to call ls you might do this. (You can also pass a command directly when you use split-window).
+
+    tmux send-keys -t $sidepane "ls"
+    tmux send-keys -t $sidepane Enter
+
+### 3. has_state_changed() and on_state_changed()
+
+At this point the sideapp is fully functional. If you chose to not extend it at all it will simply exit (close the sidepane) when reactivated.
+
+If you wish extend the functionality look into the [other callback functions](docs/callbacks.md).
