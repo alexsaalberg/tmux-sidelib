@@ -8,9 +8,9 @@ debug_echo() {
 debug_to_file() {
 	local str="$1"
 
-	local date_str=$(date)
+	#local date_str=$(date)
 
-	echo "${date_str}: $str" >> $CURRENT_DIR/debug_out
+	#echo "${date_str}: $str" >> $CURRENT_DIR/debug_out
 }
 
 debug_state_print() {
