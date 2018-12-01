@@ -42,6 +42,6 @@ Tmux Sidelib is a bash script library meant to reduce the redundant work require
 
 ## Other Stuff
 
-- (bash notes)[/docs/bash_notes.md]
+- [bash notes](/docs/bash_notes.md)
 
 - [tmux-sidebar](tmux-plugins/tmux-sidebar)
