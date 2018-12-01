@@ -1,31 +1,39 @@
 #!/usr/bin/env bash -i
 
-source callbacks.sh
-source tmux_shell_line.sh
+# SIDE_MAN
+
+source $CURRENT_DIR/callbacks.sh
+#source $CURRENT_DIR/tmux_shell_line.sh
 
 TIMEOUT_LENGTH="5"
-APP_PREFIX="note"
+APP_PREFIX="man"
+
+OPTION_PROGRAM="program"
+OPTION_SHELL_LINE="shell_line"
 
 close_man_for_pane() {
-	local pane=$2
+	local pane=$1
 
 	tmux send-keys -t $pane "q"
+	tmux send-keys -t $pane Enter 
 }
 
 open_man_for_mainpane() {
 	local app_prefix=$1
 	local mainpane=$2
 	local sidepane=$3
-	local program=$4
 
-	if [ "$program" == "bash" ]; then
-		local shell_line=$(get_tmux_shell_line $mainpane)
+	local program=$(get_sideapp_option $app_prefix "$OPTION_PROGRAM" "none")
+	local shell_line=$(get_sideapp_option $app_prefix "$OPTION_SHELL_LINE" "none")
+
+	if [[ "$program" == "bash" && "$shell_line" != "none" ]]; then
 		local last_arg=""
 
 		set $shell_line > /dev/null
-		program=$1
+		program=$1 
 
-		if [[ $# -gt 1 ]]; then # set last_arg if there are ANY args
+		# set last_arg if there are ANY args
+		if [[ $# -gt 1 ]]; then 
 			last_arg=${@: -1}
 		fi
 	fi
@@ -41,13 +49,9 @@ open_man_for_mainpane() {
 			tmux send-keys -t $sidepane Enter
 		fi 
 	else
-		tmux send-keys -t $sidepane "$program"
+		local unused="none"
+		# tmux send-keys -t $sidepane "$program"
 	fi
-
-	#tmux send-keys -t $sidepane "$program"
-
-	set_sideapp_option $app_prefix "$mainpane-program" "$program"
-	set_sideapp_option $app_prefix "$mainpane-last_arg" "$last_arg"
 }
 
 on_new_sideapp() {
@@ -58,21 +62,73 @@ on_new_sideapp() {
 
 	local sidepane=$(tmux split-window -h -t $mainpane -P -F "#{pane_id}")
 
-	open_man_for_mainpane $app_prefix $mainpane $sidepane "$program"
+	has_state_changed $app_prefix $mainpane $sidepane # will set program & shell_line options
+	open_man_for_mainpane $app_prefix $mainpane $sidepane # will access program & shell_line options
 
 	set_timeout $app_prefix $mainpane $sidepane
 	designate_panes $app_prefix $mainpane $sidepane
 	tmux last-pane
 }
 
-on_timeout() {
+has_state_changed() {
 	local app_prefix=$1
 	local mainpane=$2
 	local sidepane=$3
 
+	debug_to_file "has_state_changed: $mainpane $sidepane"
+
 	local program=$(get_program_of_pane $mainpane)
+	local old_program=$(get_sideapp_option $app_prefix "$OPTION_PROGRAM" "none")
 
-	close_man_for_pane $mainpane
-	open_man_for_mainpane $app_prefix $mainpane $sidepane "$program"
+	set_sideapp_option $app_prefix "$OPTION_PROGRAM" "$program"
 
+	debug_to_file "program: $program, old_program: $old_program"
+	if [ "$program" == "bash" ]; then
+		local shell_line=$(get_tmux_shell_line $mainpane)
+		local old_shell_line=$(get_sideapp_option $app_prefix "$OPTION_SHELL_LINE" "none")
+
+		set_sideapp_option $app_prefix "$OPTION_SHELL_LINE" "$shell_line"
+
+		if [[ -z "$shell_line" ]]; then
+			shell_line="none"
+		fi
+
+		debug_to_file "shell_line: $shell_line, old_shell_line: $old_shell_line"
+		# if the shell line has changed, 
+		# OR the shell line is the same, but the program changed
+
+		if [ "$shell_line" != "$old_shell_line" ]; then
+			debug_to_file "has_state_changed(bash): TRUE"
+			return 0 # TRUE 
+		else
+			if [ "$program" != "$old_program" ]; then
+				debug_to_file "has_state_changed(bash_program): TRUE"
+				return 0 # TRUE
+			else
+				debug_to_file "has_state_changed(bash): FALSE"
+				return 1 # FALSE 
+			fi
+		fi
+	else
+		if [ "$program" != "$old_program" ]; then
+			debug_to_file "has_state_changed: TRUE"
+			return 0 # TRUE
+		else
+			# program hasn't changed
+			debug_to_file "has_state_changed: FALSE"
+			return 1 # FALSE
+		fi
+	fi
+}
+
+on_state_changed() {
+	local app_prefix=$1
+	local mainpane=$2
+	local sidepane=$3
+
+	local program=$(get_sideapp_option $app_prefix "$OPTION_PROGRAM" "none")
+	local shell_line=$(get_sideapp_option $app_prefix "$OPTION_SHELL_LINE" "none")
+
+	close_man_for_pane $sidepane
+	open_man_for_mainpane $app_prefix $mainpane $sidepane
 }
