@@ -34,6 +34,9 @@ Usage and descriptions of the functions in `helpers.sh`
   - Returns the id of the currently active pain. E.g. `%4`
 - get_current_session()
   - Use: `local session=$(get_current_session)
+- **get_pane_dir()**
+  - Use: `local pane_pwd=$(get_pane_dir $mainpane)`
+  - Returns what pwd for the pane whose id is passed in.
 - **close_pane()**
   - Use: `close_pane $pane
   - Closes the pane using `tmux kill-pane`
@@ -65,4 +68,15 @@ Usage and descriptions of the functions in `helpers.sh`
   - Use: `local program=$(get_program_of_pid $pid)
 - **get_program_of_pane()**
   - Use: `local program=$(get_program_of_pane $pane)
-
+  
+### shell_line
+- **get_tmux_shell_line()**
+  - Use: `local shell_line=$(get_tmux_shell_line $mainpane)`
+  - Should only be called on a pane whose active program is a shell
+  - Returns the shell_line of the pane (the stuff after the $)
+- get_base_dir()
+  - Use: `local pane_pwd=$(get_base_dir $pane)`
+  - Returns the base dir of a file path
+- expand_shell_line_dirs()
+  - Used by `get_tmux_shell_line()`
+  - Manually expands the /w and /W variables.  
