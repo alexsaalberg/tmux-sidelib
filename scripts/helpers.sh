@@ -245,24 +245,42 @@ get_tmux_shell_line() {
 	local mainpane=$1
 
 	local pane_contents=$(tmux capture-pane -p -t "$mainpane")
+	#pane_contents="$pane_contents "
+	echo "_*_${pane_contents}_*_" > pane_contents
+
 
 	local prompt_var=$(tmux show-environment -g PS1)
-	prompt_var=${prompt_var#PS1=}
-	debug_to_file "  shell_line prompt_var: $prompt_var" 
+	prompt_var="${prompt_var#PS1=}"
+	debug_to_file "  shell_line prompt_var: '$prompt_var'" 
 
 	# we expand /w and /W manually because they will otherwise not be expanded to the correct dirs
 	prompt_var=$(expand_shell_line_dirs $mainpane "$prompt_var")
 
 	# Expand the prompt_var (e.g. '\w \u$ ') to the actual prompt (e.g. '/Users/John/Desktop JohnPerson$ ')
 	local prompt="${prompt_var@P}"
-	debug_to_file "  shell_line prompt: $prompt" 
+	debug_to_file "  shell_line prompt: '$prompt'" 
+
+	# If the prompt ends in a space, tmux capture-pane fails to work properly.
+	# (In this case it will not capture the space on the last line)
+	# Using the -J option captures too many spaces (non just typed spaces)
+	# Solution: If the prompt ends with a space, add a space to the pane-contents
+	#			and later remove the last character from shell_line
+	if [ "${prompt: -1}" == " " ]; then
+		pane_contents="$pane_contents "
+	fi
 
 	# Get the most recent line that contains the users expanded shell prompt
 	local prompt_and_contents=$(echo "$pane_contents" | grep "$prompt" | tail -n 1)
 
 	# Remove the prompt so it's just the shell_line (everything after the $ typically) (e.g. 'ls -l')
 	local shell_line="${prompt_and_contents#$prompt}" 
-	debug_to_file "  shell_line line: $shell_line" 
+
+	# If the prompt ends with a space, remove the last space from the shell_line (see above)
+	if [ "${prompt: -1}" == " " ]; then
+		shell_line="${shell_line%' '}"
+	fi
+
+	debug_to_file "  shell_line line: '$shell_line'" 
 
 	echo "$shell_line"
 }
