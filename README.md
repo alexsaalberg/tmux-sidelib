@@ -1,5 +1,6 @@
 # Tmux Sidelib
 
+
 ## Description
 
 Tmux Sidelib is a bash script library meant to reduce the redundant work required to create tmux-plugins such as [tmux-sidelib](https://github.com/tmux-plugins/tmux-sidebar) or [tmux-notepane](https://github.com/alexsaalberg/tmux-notepane). These are plugins which open a useful program when activated via a tmux binding.
@@ -29,6 +30,10 @@ Tmux Sidelib is a bash script library meant to reduce the redundant work require
 - [Sidelib Tutorial](/docs/sidelib_tutorial.md)
 
 - [`helpers.sh` documentation](/docs/helpers_sh.md)
+
+## Examples of "sideapps"
+
+- [tmux-sideman](https://www.github.com/alexsaalberg/tmux-sideman)
 
 ## Updates
 
