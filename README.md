@@ -1,5 +1,6 @@
 # Tmux Sidelib
 
+![Screenshot showing off example tmux-sideapp](screen.png)
 
 ## Description
 
