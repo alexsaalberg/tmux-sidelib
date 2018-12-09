@@ -1,6 +1,12 @@
 # Planned Stuff
 
+## v0.3
+- Figure out (and fix) issues with timeouts.
+  - Currently timeouts don't behave as expected.
+  - I think hooks don't work as I think they do, so this needs to be investigated.
+
 ## v0.2
+### COMPLETE
 - Make state of sideapp part of sidelib proper
   - Problem: Currently the `note` and `man` apps have to build and test state on each timeout to see if any action should be taken
     - This results in duplicated and messy code.
@@ -17,6 +23,8 @@
       - If state is different...
         - on repress -> activate callback: `on_state_changed()`
         - on timeout -> activate callback: `on_state_changed()`
+- Add tmux_shell_line.sh stuff to helpers.sh
+### SHELVED (for now, easy to implement if needed)
 - Add a second sidelib prefix
   - Problem: Timeout callbacks are slow and sort-of annoying and repress callbacks (while quicker) can close the sidepane.
   - Solution: Add a second prefix key
@@ -27,7 +35,6 @@
         - It cannot be used to make new sideapps
         - If either pane is closed, call the appropriate normal callbacks.
         - This way `on_second()` can call `on_timeout()` or `on_repress()` on it's own.
-- Add tmux_shell_line.sh stuff to helpers.sh
 
 ## vWhenever
 - (Maybe) Make demos not open up bash
